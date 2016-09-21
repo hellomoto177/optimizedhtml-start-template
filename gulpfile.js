@@ -14,7 +14,7 @@ var gulp           = require('gulp'),
 		fileinclude    = require('gulp-file-include'),
 		gulpRemoveHtml = require('gulp-remove-html'),
 		bourbon        = require('node-bourbon'),
-		ftp            = require('vinyl-ftp'),
+		rsync 		   = require('gulp-rsync'),
 		notify         = require("gulp-notify");
 
 gulp.task('browser-sync', function() {
@@ -108,20 +108,16 @@ gulp.task('build', ['removedist', 'buildhtml', 'imagemin', 'sass', 'libs'], func
 
 gulp.task('deploy', function() {
 
-	var conn = ftp.create({
-		host:      'hostname.com',
-		user:      'username',
-		password:  'userpassword',
-		parallel:  10,
-		log: gutil.log
-	});
-
-	var globs = [
-	'dist/**',
-	'dist/.htaccess',
-	];
-	return gulp.src(globs, {buffer: false})
-	.pipe(conn.dest('/path/to/folder/on/server'));
+	gulp.src('dist/*')
+	.pipe(rsync({
+		hostname: 'hostname-of-your-site',
+		destination: '/path-to-site/',
+		username: 'your-username',
+    	relative: true,
+    	emptyDirectories: true,
+    	recursive: true,
+    	root: 'dist/'
+	}));
 
 });
 
